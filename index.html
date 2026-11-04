@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning migration sites pays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">byNativ · Projet MGDSP</span>
+    <h1>Migration graphique des sites pays</h1>
+    <p class="lead">Planning des 54 sites, de la mise en préprod jusqu'à la mise en prod. Chaque site suit les mêmes 5 étapes, une par jour ouvré. Les mises en prod sont groupées un jeudi sur deux, sauf pour les 4 premiers sites.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <section aria-labelledby="t-today">
+    <div class="sec-head"><h2 id="t-today">Aujourd'hui</h2><p id="today-label"></p></div>
+    <div class="today" id="today"></div>
+  </section>
+
+  <section aria-labelledby="t-rel">
+    <div class="sec-head"><h2 id="t-rel">Mises en prod</h2><p>Cliquez sur une release pour filtrer le tableau.</p></div>
+    <div class="rail" id="rail"></div>
+  </section>
+
+  <section aria-labelledby="t-plan">
+    <div class="sec-head"><h2 id="t-plan">Planning détaillé</h2><span class="count" id="count"></span></div>
+    <div class="filters" id="people" role="group" aria-label="Filtrer par personne"></div>
+    <div class="filters">
+      <input class="search" id="q" type="search" placeholder="Rechercher un pays" aria-label="Rechercher un pays">
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="box-shadow:inset 0 0 0 2px var(--warn);background:var(--warn-soft)"></i>Aujourd'hui</span>
+      <span><i class="sw" style="background:var(--line)"></i>Étape passée</span>
+      <span><i class="sw" style="background:var(--accent)"></i>Mise en prod</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Site</th>
+          <th>BDD → préprod<small>Pierre-Yves</small></th>
+          <th>Migration IA + contrôle<small>Inès</small></th>
+          <th>Correction des pages<small>selon le site</small></th>
+          <th>Contrôle SEO<small>Chmouel</small></th>
+          <th>BDD → prod<small>Pierre-Yves</small></th>
+          <th>Jira</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-how">
+    <h2 id="t-how">Comment ça marche</h2>
+    <ol class="steps">
+      <li><b>BDD → préprod</b><p>Pierre-Yves copie la base du site sur la préprod.</p></li>
+      <li><b>Migration IA + contrôle</b><p>Inès lance la migration IA du gabarit et contrôle le résultat.</p></li>
+      <li><b>Correction des pages</b><p>Une personne de l'équipe corrige les pages du site.</p></li>
+      <li><b>Contrôle SEO</b><p>Chmouel vérifie le SEO en préprod, un site par jour.</p></li>
+      <li><b>BDD → prod</b><p>Pierre-Yves pousse la base en prod lors de la release suivante.</p></li>
+    </ol>
+    <ul class="rules">
+      <li>Irlande, Philippines, Indonésie et USA passent en prod individuellement, le lendemain de leur contrôle SEO.</li>
+      <li>Ensuite, tous les sites prêts partent ensemble un jeudi sur deux. Un site est prêt quand son contrôle SEO est terminé la veille au plus tard.</li>
+      <li>Aucune tâche n'est prévue du 21 au 25 décembre, ni le 11 novembre et le 1<sup>er</sup> janvier. Cette semaine ne compte pas dans le rythme des releases.</li>
+      <li>Chaque étape correspond à un ticket dans le projet Jira MGDSP, avec la date du planning en échéance.</li>
+    </ul>
+  </section>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
