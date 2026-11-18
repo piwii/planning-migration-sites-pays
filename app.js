@@ -1,10 +1,9 @@
 const DATA = window.PLANNING;
-const STEPS = ["BDD → préprod","Migration IA + contrôle","Correction des pages","Contrôle SEO","BDD → prod"];
+const STEPS = ["BDD → préprod","Migration IA + contrôle et correction des pages","Contrôle SEO","BDD → prod"];
 const PEOPLE = {
-  "Pierre-Yves":"--p-py","Inès":"--p-ines","Sophia":"--p-sophia","Denice":"--p-denice",
-  "Chmouel":"--p-chmouel","Galadrièle":"--p-gala","Eva":"--p-eva"
+  "Pierre-Yves":"--p-py","Inès":"--p-ines","Chmouel":"--p-chmouel"
 };
-const owner = (site, i) => i===0||i===4 ? "Pierre-Yves" : i===1 ? "Inès" : i===3 ? "Chmouel" : site.c;
+const owner = (site, i) => i===0||i===3 ? "Pierre-Yves" : i===1 ? "Inès" : "Chmouel";
 const fmt = iso => { const [y,m,d] = iso.split("-"); return d+"/"+m; };
 const fmtLong = iso => new Date(iso+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
 const pad = n => String(n).padStart(2,"0");
@@ -16,14 +15,14 @@ const esc = t => t.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'
 // Releases
 const FIRST4 = DATA.slice(0,4);
 const releases = {};
-DATA.slice(4).forEach(s => { (releases[s.d[4]] ||= []).push(s); });
+DATA.slice(4).forEach(s => { (releases[s.d[3]] ||= []).push(s); });
 const relDates = Object.keys(releases).sort();
 
 // Faits clés
-const lastDate = DATA.map(s=>s.d[4]).sort().pop();
+const lastDate = DATA.map(s=>s.d[3]).sort().pop();
 document.getElementById("facts").innerHTML = [
   [DATA.length,"sites à migrer"],
-  [DATA.length*5,"tickets Jira"],
+  [16,"lots de contribution"],
   [relDates.length,"mises en prod groupées"],
   [fmt(DATA[0].d[0])+" → "+fmt(lastDate),"durée du projet"]
 ].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join("");
@@ -50,10 +49,10 @@ if (!focus) {
 let relFilter = null;
 const rail = document.getElementById("rail");
 function relCard(key, label, date, sites, extra){
-  const done = (date || FIRST4[3].d[4]) < TODAY;
+  const done = (date || FIRST4[3].d[3]) < TODAY;
   return `<button class="rel${done?" done":""}" data-rel="${key}" aria-pressed="false">
     <span class="k">${label}</span>
-    <span class="d">${date ? fmt(date) : fmt(FIRST4[0].d[4])+" → "+fmt(FIRST4[3].d[4])}</span>
+    <span class="d">${date ? fmt(date) : fmt(FIRST4[0].d[3])+" → "+fmt(FIRST4[3].d[3])}</span>
     <span class="n">${sites.length} site${sites.length>1?"s":""}${done?" · passée":""}</span>
     ${extra||""}
     <span class="sites">${sites.map(s=>esc(s.s)).join(", ")}</span>
@@ -87,28 +86,28 @@ function render(){
   const rows = DATA.filter((s,idx) => {
     if (term && !s.s.toLowerCase().includes(term)) return false;
     if (relFilter === "first" && idx >= 4) return false;
-    if (relFilter && relFilter !== "first" && (idx < 4 || s.d[4] !== relFilter)) return false;
-    if (who && ![0,1,2,3,4].some(i => owner(s,i)===who)) return false;
+    if (relFilter && relFilter !== "first" && (idx < 4 || s.d[3] !== relFilter)) return false;
+    if (who && ![0,1,2,3].some(i => owner(s,i)===who)) return false;
     return true;
   });
   let html = "", lastGroup = null;
   rows.forEach(s => {
     const idx = DATA.indexOf(s);
-    const group = idx < 4 ? "Prods individuelles" : "Release du " + fmt(s.d[4]);
-    if (group !== lastGroup) { html += `<tr class="group"><td colspan="7">${group}</td></tr>`; lastGroup = group; }
+    const group = idx < 4 ? "Prods individuelles" : "Release du " + fmt(s.d[3]);
+    if (group !== lastGroup) { html += `<tr class="group"><td colspan="6">${group}</td></tr>`; lastGroup = group; }
     const cells = s.d.map((d,i) => {
       const o = owner(s,i);
       const cls = ["cell"];
       if (d < TODAY) cls.push("past");
       if (d === TODAY) cls.push("today");
-      if (i===4) cls.push("prod");
+      if (i===3) cls.push("prod");
       if (who) cls.push(o===who ? "mine" : "dim");
-      const person = i===2 ? `<span class="p"><i class="dot" style="--c:var(${PEOPLE[o]})"></i>${o}</span>` : "";
+      const person = i===1 && s.lot ? `<span class="p">${s.time || ""} · lot ${s.lot}<br>du ${fmt(s.start)} au ${fmt(d)}</span>` : "";
       return `<td class="${cls.join(" ")}">${fmt(d)}${person}</td>`;
     }).join("");
-    html += `<tr><td class="site">${esc(s.s)}</td>${cells}<td><a class="jira" href="${jiraUrl(s)}" target="_blank" rel="noopener">MGDSP-${s.k}…${s.k+4}</a></td></tr>`;
+    html += `<tr><td class="site">${esc(s.s)}${s.unscheduled ? "<small class=outside>Hors planning de contribution fourni</small>" : ""}</td>${cells}<td><a class="jira" href="${jiraUrl(s)}" target="_blank" rel="noopener">MGDSP-${s.k}…${s.k+4}</a></td></tr>`;
   });
-  document.getElementById("rows").innerHTML = html || `<tr><td colspan="7" class="empty">Aucun site ne correspond à ces filtres.</td></tr>`;
+  document.getElementById("rows").innerHTML = html || `<tr><td colspan="6" class="empty">Aucun site ne correspond à ces filtres.</td></tr>`;
   document.getElementById("count").textContent = rows.length + " site" + (rows.length>1?"s":"") + " affiché" + (rows.length>1?"s":"");
 }
 render();
