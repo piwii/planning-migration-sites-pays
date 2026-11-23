@@ -85,3 +85,7 @@ a.jira:hover{text-decoration:underline}
 
 .outside{display:block;font-size:11px;font-weight:400;color:var(--muted)}
 td.cell .p{display:block;margin:4px 0 0;font-size:11px;line-height:1.5}
+
+.jira-snapshot{color:var(--muted);font-size:13px;margin:8px 0}
+td.cell.overdue{background:var(--warn-soft);color:var(--ink)}
+.late-label{display:block;width:fit-content;color:var(--warn);font:600 12px/1.4 var(--f-body);margin-top:4px}

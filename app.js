@@ -17,6 +17,28 @@ const FIRST4 = DATA.slice(0,4);
 const releases = {};
 DATA.slice(4).forEach(s => { (releases[s.d[3]] ||= []).push(s); });
 const relDates = Object.keys(releases).sort();
+const groupedReleaseIssues = [271, 272, 275, 274, 273];
+const jiraSnapshot = window.JIRA_OVERDUE;
+const overdueIssues = new Set(jiraSnapshot?.issues);
+const jiraSnapshotLabel = document.getElementById("jira-snapshot");
+if (jiraSnapshot) {
+  const count = overdueIssues.size;
+  const overdueLabel = count > 1 ? count + " tâches en retard" : count + " tâche en retard";
+  jiraSnapshotLabel.textContent = overdueLabel + " · Statuts Jira relevés le " +
+    new Date(jiraSnapshot.date + "T12:00:00").toLocaleDateString("fr-FR");
+} else {
+  jiraSnapshotLabel.textContent = "Relevé Jira indisponible";
+}
+
+function overdueIssue(site, step, index) {
+  if (step === 3 && index >= FIRST4.length) {
+    const issue = groupedReleaseIssues[relDates.indexOf(site.d[3])];
+    return overdueIssues.has(issue) ? issue : undefined;
+  }
+  const offsets = [[0], [2, 1], [3], [4]];
+  return offsets[step].map(offset => site.k + offset).find(issue => overdueIssues.has(issue));
+}
+
 
 // Faits clés
 const lastDate = DATA.map(s=>s.d[3]).sort().pop();
@@ -98,12 +120,15 @@ function render(){
     const cells = s.d.map((d,i) => {
       const o = owner(s,i);
       const cls = ["cell"];
-      if (d < TODAY) cls.push("past");
+      const issue = overdueIssue(s, i, idx);
+      if (issue) cls.push("overdue");
+      else if (d < TODAY) cls.push("past");
       if (d === TODAY) cls.push("today");
       if (i===3) cls.push("prod");
       if (who) cls.push(o===who ? "mine" : "dim");
       const person = i===1 && s.lot ? `<span class="p">${s.time || ""} · lot ${s.lot}<br>du ${fmt(s.start)} au ${fmt(d)}</span>` : "";
-      return `<td class="${cls.join(" ")}">${fmt(d)}${person}</td>`;
+      const delay = issue ? `<a class="late-label" href="https://bynativ.atlassian.net/browse/MGDSP-${issue}" target="_blank" rel="noopener" aria-label="En retard dans Jira, MGDSP-${issue}">En retard</a>` : "";
+      return `<td class="${cls.join(" ")}">${fmt(d)}${person}${delay}</td>`;
     }).join("");
     html += `<tr><td class="site">${esc(s.s)}${s.unscheduled ? "<small class=outside>Hors planning de contribution fourni</small>" : ""}</td>${cells}<td><a class="jira" href="${jiraUrl(s)}" target="_blank" rel="noopener">MGDSP-${s.k}…${s.k+4}</a></td></tr>`;
   });
