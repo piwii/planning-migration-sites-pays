@@ -1,1 +1,1 @@
-window.JIRA_OVERDUE = {"date":"2026-11-26","issues":[33,34,44,48,53,58,63,68]};
+window.JIRA_OVERDUE = {"date":"2026-11-27","issues":[34,53,54,63,68,73,78,83]};
